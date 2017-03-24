@@ -5,6 +5,9 @@ exports.make = (base, params) => {
 }
 
 exports.assign_without_overwrite = (target, source) => {
+    if (target === undefined) {
+        throw new Error("assign_without_overwrite() called without arguments");
+    }
 	if (source === undefined) {
 		return;
 	}

@@ -9,8 +9,8 @@ const all = [];
 
 exports.new = (params = {}) => {
 
-    let defaults = {width: 600, height: 400, resizable: true, page: "index.html"}
-    assign_without_overwrite(params, defaults)
+    let defaults = {width: 600, height: 400, resizable: true, page: "index.html"};
+    assign_without_overwrite(params, defaults);
 
     // The screen may be zoomed, we can compensate...
 
