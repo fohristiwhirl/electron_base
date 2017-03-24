@@ -5,7 +5,7 @@ const windows = require("./modules/windows");
 const alert = require("./modules/alert");
 
 electron.app.on("ready", () => {
-    windows.new(1000, 680, "file:", "swarm.html");
+    windows.new({width: 1600, height: 300, page: "swarm.html"});
     menu_build();
 });
 

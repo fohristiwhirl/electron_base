@@ -2,10 +2,26 @@
 
 const electron = require("electron");
 
-exports.alert = (msg) => {
+function alert_main(msg) {
     electron.dialog.showMessageBox({
-        message: msg,
-        title: "Alert!",
+        message: msg.toString(),
+        title: "Alert",
         buttons: ["OK"]
     });
+}
+
+function alert_renderer(msg) {
+    electron.remote.dialog.showMessageBox({
+        message: msg.toString(),
+        title: "Alert",
+        buttons: ["OK"]
+    });
+}
+
+exports.alert = (msg) => {
+    if (process.type === "renderer") {
+        alert_renderer(msg);
+    } else {
+        alert_main(msg);
+    }
 }

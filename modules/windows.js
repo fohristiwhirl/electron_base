@@ -2,22 +2,32 @@
 
 const electron = require("electron");
 const url = require("url");
+const alert = require("./alert").alert;
+const assign_without_overwrite = require("./utils").assign_without_overwrite;
 
 const all = [];
 
-exports.new = (width, height, protocol, page) => {
+exports.new = (params = {}) => {
+
+    let defaults = {width: 600, height: 400, resizable: true, page: "index.html"}
+    assign_without_overwrite(params, defaults)
+
+    // The screen may be zoomed, we can compensate...
+
+    let zoom_factor = 1 / electron.screen.getPrimaryDisplay().scaleFactor;
 
     let win = new electron.BrowserWindow({
-        width: width,
-        height: height,
+        width: params.width * zoom_factor,
+        height: params.height * zoom_factor,
         backgroundColor: "#000000",
         useContentSize: true,
-        webPreferences: { zoomFactor: 1 / electron.screen.getPrimaryDisplay().scaleFactor }     // The screen may be zoomed, we can compensate.
+        resizable: params.resizable,
+        webPreferences: { zoomFactor: zoom_factor }
     });
 
     win.loadURL(url.format({
-        protocol: protocol,
-        pathname: page,
+        protocol: "file:",
+        pathname: params.page,
         slashes: true
     }));
 
