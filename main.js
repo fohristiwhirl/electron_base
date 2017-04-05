@@ -19,6 +19,15 @@ function menu_build() {
             label: "Menu",
             submenu: [
                 {
+                    label: "About",
+                    click: () => {
+                        alert.alert("This is a test program.");
+                    }
+                },
+                {
+                    type: "separator"
+                },
+                {
                     label: "Zoom out",
                     click: () => {
                         windows.change_zoom(-0.1);
@@ -31,10 +40,16 @@ function menu_build() {
                     }
                 },
                 {
-                    label: "About",
-                    click: () => {
-                        alert.alert("This is a test program.");
-                    }
+                    role: "reload"
+                },
+                {
+                    role: "quit"
+                },
+                {
+                    type: "separator"
+                },
+                {
+                    role: "toggledevtools"
                 }
             ]
         }
