@@ -49,7 +49,9 @@ exports.change_zoom = (diff) => {
     for (n = 0; n < all.length; n += 1) {
         let contents = all[n].webContents;
         contents.getZoomFactor((val) => {
-            contents.setZoomFactor(val + diff);
+            if (val + diff >= 0.2) {
+                contents.setZoomFactor(val + diff);
+            }
         });
     }
 };
