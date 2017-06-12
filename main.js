@@ -21,7 +21,7 @@ function menu_build() {
 				{
 					label: "About",
 					click: () => {
-						alert.alert("This is a test program running under Electron " + process.versions.electron);
+						alert("This is a test program running under Electron " + process.versions.electron);
 					}
 				},
 				{
