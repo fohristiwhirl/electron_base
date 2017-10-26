@@ -1,6 +1,7 @@
 "use strict";
 
 const electron = require("electron");
+const path = require("path");
 const url = require("url");
 const assign_without_overwrite = require("./utils").assign_without_overwrite;
 
@@ -8,7 +9,7 @@ const all = [];
 
 exports.new = (params = {}) => {
 
-    let defaults = {width: 600, height: 400, resizable: true, page: "index.html"};
+    let defaults = {width: 600, height: 400, resizable: true, page: path.join(__dirname, "index.html")};
     assign_without_overwrite(params, defaults);
 
     // The screen may be zoomed, we can compensate...

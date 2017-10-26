@@ -1,11 +1,12 @@
 "use strict";
 
 const electron = require("electron");
+const path = require("path");
 const windows = require("./modules/windows");
 const alert = require("./modules/alert");
 
 electron.app.on("ready", () => {
-	windows.new({width: 1600, height: 300, page: "swarm.html"});
+	windows.new({width: 1600, height: 300, page: path.join(__dirname, "swarm.html")});
 	menu_build();
 });
 
