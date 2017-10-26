@@ -5,69 +5,68 @@ const path = require("path");
 const url = require("url");
 const assign_without_overwrite = require("./utils").assign_without_overwrite;
 
-const all = [];
+const all_windows = Object.create(null);	// Map of token --> window.
 
-exports.new = (params = {}) => {
+exports.new = (token, params = {}) => {		// Token is an internal name for us to refer to the window by.
 
-    let defaults = {width: 600, height: 400, resizable: true, page: path.join(__dirname, "index.html")};
-    assign_without_overwrite(params, defaults);
+	if (all_windows[token]) {
+		alert("windows.js: Asked to create window with token '" + token + "' which already exists!");
+		return;
+	}
 
-    // The screen may be zoomed, we can compensate...
+	let defaults = {width: 600, height: 400, resizable: true, page: path.join(__dirname, "index.html")};
+	assign_without_overwrite(params, defaults);
 
-    let zoom_factor = 1 / electron.screen.getPrimaryDisplay().scaleFactor;
+	// The screen may be zoomed, we can compensate...
 
-    let win = new electron.BrowserWindow({
-        width: params.width * zoom_factor,
-        height: params.height * zoom_factor,
-        backgroundColor: "#000000",
-        useContentSize: true,
-        resizable: params.resizable,
-        webPreferences: { zoomFactor: zoom_factor }
-    });
+	let zoom_factor = 1 / electron.screen.getPrimaryDisplay().scaleFactor;
 
-    win.loadURL(url.format({
-        protocol: "file:",
-        pathname: params.page,
-        slashes: true
-    }));
+	let win = new electron.BrowserWindow({
+		width: params.width * zoom_factor,
+		height: params.height * zoom_factor,
+		backgroundColor: "#000000",
+		useContentSize: true,
+		resizable: params.resizable,
+		webPreferences: { zoomFactor: zoom_factor }
+	});
 
-    all.push(win);
+	win.loadURL(url.format({
+		protocol: "file:",
+		pathname: params.page,
+		slashes: true
+	}));
 
-    win.on("closed", () => {
-        let n;
-        for (n = 0; n < all.length; n += 1) {
-            if (all[n] === win) {
-                all.splice(n, 1);
-                break;
-            }
-        }
-    });
+	all_windows[token] = win;
+
+	win.on("closed", () => {
+		delete all_windows[token];
+	});
 };
 
-exports.change_zoom = (diff) => {
-    let n;
-    for (n = 0; n < all.length; n += 1) {
-        let contents = all[n].webContents;
-        contents.getZoomFactor((val) => {
-            if (val + diff >= 0.2) {
-                contents.setZoomFactor(val + diff);
-            }
-        });
-    }
+exports.change_zoom = (token, diff) => {
+	if (all_windows[token] === undefined) {
+		return
+	}
+	let contents = all_windows[token].webContents;
+	contents.getZoomFactor((val) => {
+		if (val + diff >= 0.2) {
+			contents.setZoomFactor(val + diff);
+		}
+	});
 };
 
-exports.set_zoom = (val) => {
-    let n;
-    for (n = 0; n < all.length; n += 1) {
-        let contents = all[n].webContents;
-        contents.setZoomFactor(val);
-    }
+exports.set_zoom = (token, val) => {
+	if (all_windows[token] === undefined) {
+		return
+	}
+	let contents = all_windows[token].webContents;
+	contents.setZoomFactor(val);
 };
 
-exports.send = (channel, msg) => {
-    let n;
-    for (n = 0; n < all.length; n += 1) {
-        let contents = all[n].webContents;
-        contents.send(channel, msg);
-    }
+exports.send = (token, channel, msg) => {
+	if (all_windows[token] === undefined) {
+		return
+	}
+	let contents = all_windows[token].webContents;
+	contents.send(channel, msg);
 };

@@ -6,7 +6,7 @@ const windows = require("./modules/windows");
 const alert = require("./modules/alert");
 
 electron.app.on("ready", () => {
-	windows.new({width: 1600, height: 300, page: path.join(__dirname, "swarm.html")});
+	windows.new("main-window", {width: 1600, height: 300, page: path.join(__dirname, "swarm.html")});
 	menu_build();
 });
 
@@ -31,13 +31,13 @@ function menu_build() {
 				{
 					label: "Zoom out",
 					click: () => {
-						windows.change_zoom(-0.1);
+						windows.change_zoom("main-window", -0.1);
 					}
 				},
 				{
 					label: "Zoom in",
 					click: () => {
-						windows.change_zoom(0.1);
+						windows.change_zoom("main-window", 0.1);
 					}
 				},
 				{
