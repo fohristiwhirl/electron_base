@@ -3,7 +3,7 @@
 const electron = require("electron");
 
 function object_to_string(o) {
-    let msg = JSON.stringify(o);
+    let msg = JSON.stringify(o, null, 2);
     return msg;
 }
 
@@ -30,10 +30,10 @@ module.exports = (msg) => {
     if (typeof(msg) === "undefined") {
         msg = "undefined";
     }
-    msg = msg.trim()
+    msg = msg.trim();
     if (process.type === "renderer") {
         alert_renderer(msg);
     } else {
         alert_main(msg);
     }
-}
+};

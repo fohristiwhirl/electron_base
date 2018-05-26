@@ -4,11 +4,11 @@
 
 exports.is_main = () => {
     return process.type === "browser";  // For whatever reason, the "main" process is called "browser".
-}
+};
 
 exports.is_renderer = () => {
     return process.type === "renderer";
-}
+};
 
 exports.get_type = () => {
     if (process.type === "browser") {
@@ -16,4 +16,4 @@ exports.get_type = () => {
     } else {
         return process.type;
     }
-}
+};
