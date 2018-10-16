@@ -14,16 +14,22 @@ exports.new = (token, params = {}) => {		// token is an internal name for us to 
 		return;
 	}
 
-	let defaults = {show: true, width: 600, height: 400, resizable: true, page: path.join(__dirname, "index.html")};
+	let defaults = {title: "Title", show: true, width: 600, height: 400, resizable: true, page: path.join(__dirname, "index.html")};
 	assign_without_overwrite(params, defaults);
 
+	// The screen may be zoomed, we can compensate...
+
+	let zoom_factor = 1 / electron.screen.getPrimaryDisplay().scaleFactor;
+
 	let win = new electron.BrowserWindow({
+		title: params.title,
 		show: params.show,
-		width: params.width,
-		height: params.height,
+		width: params.width * zoom_factor,
+		height: params.height * zoom_factor,
 		backgroundColor: "#000000",
 		useContentSize: true,
-		resizable: params.resizable
+		resizable: params.resizable,
+		webPreferences: { zoomFactor: zoom_factor }
 	});
 
 	win.loadURL(url.format({
@@ -45,6 +51,8 @@ exports.new = (token, params = {}) => {		// token is an internal name for us to 
 	win.on("hide", () => {
 		quit_if_all_windows_are_hidden();
 	});
+
+	return win;		// Though caller may well not need this.
 };
 
 exports.change_zoom = (token, diff) => {
@@ -90,6 +98,13 @@ exports.show = (token) => {
 		return;
 	}
 	all_windows[token].show();
+};
+
+exports.hide = (token) => {
+	if (all_windows[token] === undefined) {
+		return;
+	}
+	all_windows[token].hide();
 };
 
 exports.get_window = (token) => {
