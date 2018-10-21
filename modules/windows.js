@@ -38,7 +38,7 @@ exports.new = (token, params = {}) => {		// token is an internal name for us to 
 		slashes: true
 	}));
 
-	win.setMenu(null);
+	// win.setMenu(null);			// Hides menu until explicitly set but may cause Linux issues?
 
 	all_windows[token] = win;
 
