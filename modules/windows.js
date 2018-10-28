@@ -129,7 +129,7 @@ function quit_if_all_windows_are_hidden() {
 		let key = keys[n];
 		let win = all_windows[key];
 		try {
-			if (win.isVisible()) {
+			if (win.isVisible()) {		// Note that backgroundThrottling:false affects this, I believe.
 				return;
 			}
 		} catch (e) {
@@ -137,5 +137,5 @@ function quit_if_all_windows_are_hidden() {
 		}
 	}
 
-	electron.app.exit();						// Why doesn't quit work?
+	electron.app.exit();				// Why doesn't quit work?
 }
