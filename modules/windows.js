@@ -1,6 +1,8 @@
 "use strict";
 
+const alert = require("./alert");
 const electron = require("electron");
+const fs = require("fs");
 const path = require("path");
 const url = require("url");
 const assign_without_overwrite = require("./utils").assign_without_overwrite;
@@ -45,9 +47,15 @@ exports.new = (token, params = {}) => {		// token is an internal name for us to 
 		}
 	});
 
+	let f = path.join(process.cwd(), params.page);
+
+	if (fs.existsSync(f) === false) {
+		alert(`New window wanted page "${f}" which didn't exist.`)
+	}
+
 	win.loadURL(url.format({
 		protocol: "file:",
-		pathname: path.join(process.cwd(), params.page),
+		pathname: f,
 		slashes: true
 	}));
 
