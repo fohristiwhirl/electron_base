@@ -47,7 +47,7 @@ exports.new = (token, params = {}) => {		// token is an internal name for us to 
 
 	win.loadURL(url.format({
 		protocol: "file:",
-		pathname: params.page,
+		pathname: path.join(process.cwd(), params.page),
 		slashes: true
 	}));
 
