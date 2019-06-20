@@ -7,54 +7,30 @@ const path = require("path");
 const url = require("url");
 const assign_without_overwrite = require("./utils").assign_without_overwrite;
 
-const all_windows = Object.create(null);	// Map of token --> window.
+const all_windows = Object.create(null);			// Map of token --> window.
 
-exports.new = (token, params = {}) => {		// token is an internal name for us to refer to the window by.
+exports.new = (token, pagepath, params) => {		// token is an internal name for us to refer to the window by.
 
 	if (all_windows[token]) {
 		alert("windows.js: Asked to create window with token '" + token + "' which already exists!");
 		return;
 	}
 
-	let defaults = {
-		title: "Title",
-		show: true,
-		width: 600,
-		height: 400,
-		throttle: true,
-		resizable: true,
-	};
+	if (!params.webPreferences) {
+		params.webPreferences = {};
+	}
 
-	assign_without_overwrite(params, defaults);
+	params.webPreferences.zoomFactor = 1 / electron.screen.getPrimaryDisplay().scaleFactor;
 
-	// The screen may be zoomed, we can compensate...
+	let win = new electron.BrowserWindow(params);
 
-	let zoom_factor = 1 / electron.screen.getPrimaryDisplay().scaleFactor;
-
-	let win = new electron.BrowserWindow({
-		title: params.title,
-		show: params.show,
-		width: params.width * zoom_factor,
-		height: params.height * zoom_factor,
-		backgroundColor: "#000000",
-		useContentSize: true,
-		resizable: params.resizable,
-		webPreferences: {
-			backgroundThrottling: params.throttle,
-			nodeIntegration: true,
-			zoomFactor: zoom_factor
-		}
-	});
-
-	let f = params.page;
-
-	if (fs.existsSync(f) === false) {
-		alert(`New window wanted page "${f}" which didn't exist.`)
+	if (fs.existsSync(pagepath) === false) {
+		alert(`New window wanted page "${pagepath}" which didn't exist.`)
 	}
 
 	win.loadURL(url.format({
 		protocol: "file:",
-		pathname: f,
+		pathname: pagepath,
 		slashes: true
 	}));
 
@@ -125,6 +101,13 @@ exports.hide = (token) => {
 		return;
 	}
 	all_windows[token].hide();
+};
+
+exports.focus = (token) => {
+	if (all_windows[token] === undefined) {
+		return;
+	}
+	all_windows[token].focus();
 };
 
 exports.get_window = (token) => {

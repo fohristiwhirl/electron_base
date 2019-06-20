@@ -6,9 +6,12 @@ const ipcMain = require("electron").ipcMain;
 const path = require("path");
 const windows = require("./modules/windows");
 
-
 electron.app.on("ready", () => {
-	windows.new("main-window", {width: 1600, height: 300, page: path.join(__dirname, "swarm.html")});
+	windows.new("main-window", path.join(__dirname, "swarm.html"), {
+		width: 1600,
+		height: 300,
+		backgroundColor: "black",
+	});
 	menu_build();
 });
 
