@@ -4,23 +4,48 @@ const alert = require("./modules/alert");
 const electron = require("electron");
 const ipcMain = require("electron").ipcMain;
 const path = require("path");
-const windows = require("./modules/windows");
+const url = require("url");
+
+let menu = menu_build();
+let win;						// We're supposed to keep global references to every window we make.
 
 electron.app.on("ready", () => {
-	windows.new("main-window", path.join(__dirname, "swarm.html"), {
+
+	win = new electron.BrowserWindow({
 		width: 1600,
 		height: 300,
-		backgroundColor: "black",
+		backgroundColor: "#000000",
+		resizable: true,
+		show: false,			// We won't show until it's properly drawn.
+		useContentSize: true,
+		webPreferences: {
+			backgroundThrottling: false,
+			nodeIntegration: true,
+			zoomFactor: 1 / electron.screen.getPrimaryDisplay().scaleFactor
+		}
 	});
-	menu_build();
+
+	let pagepath = path.join(__dirname, "swarm.html");
+
+	win.loadURL(url.format({
+		protocol: "file:",
+		pathname: pagepath,
+		slashes: true
+	}));
+
+	win.once("ready-to-show", () => {		// Thankfully, fires even after exception during renderer startup.
+		win.show();
+		win.focus();
+	});
+
+	electron.Menu.setApplicationMenu(menu);
 });
+
+// See Fluorine or Nibbler for examples of loading a file from command line argument.
+// Note that "ready-to-show" probably fires too early to use as a trigger for that.
 
 electron.app.on("window-all-closed", () => {
 	electron.app.quit();
-});
-
-ipcMain.on("relay", (event, msg) => {
-	windows.send(msg.receiver, msg.channel, msg.content);		// Facilitates messages between browser windows...
 });
 
 function menu_build() {
@@ -35,28 +60,7 @@ function menu_build() {
 					}
 				},
 				{
-					type: "separator"
-				},
-				{
-					label: "Zoom out",
-					click: () => {
-						windows.change_zoom("main-window", -0.1);
-					}
-				},
-				{
-					label: "Zoom in",
-					click: () => {
-						windows.change_zoom("main-window", 0.1);
-					}
-				},
-				{
-					role: "reload"
-				},
-				{
 					role: "quit"
-				},
-				{
-					type: "separator"
 				},
 				{
 					role: "toggledevtools"
@@ -65,6 +69,5 @@ function menu_build() {
 		}
 	];
 
-	const menu = electron.Menu.buildFromTemplate(template);
-	electron.Menu.setApplicationMenu(menu);
+	return electron.Menu.buildFromTemplate(template);
 }
