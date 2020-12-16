@@ -1,52 +1,79 @@
 "use strict";
 
-const alert = require("./modules/alert");
 const electron = require("electron");
-const ipcMain = require("electron").ipcMain;
 const path = require("path");
+const stringify = require("./modules/stringify");
 const url = require("url");
 
 let menu = menu_build();
 let win;						// We're supposed to keep global references to every window we make.
 
-electron.app.on("ready", () => {
+if (electron.app.isReady()) {
+	console.log("Path 1");
+	startup();
+} else {
+	console.log("Path 2");
+	electron.app.once("ready", () => {
+		startup();
+	});
+}
+
+// --------------------------------------------------------------------------------------------------------------
+
+function alert(msg) {
+	electron.dialog.showMessageBox({message: stringify(msg), title: "Alert", buttons: ["OK"]}, () => {});
+	// Providing a callback makes the window not block the process.
+};
+
+function startup() {
 
 	win = new electron.BrowserWindow({
 		width: 1600,
 		height: 300,
 		backgroundColor: "#000000",
 		resizable: true,
-		show: false,			// We won't show until it's properly drawn.
+		show: false,
 		useContentSize: true,
 		webPreferences: {
 			backgroundThrottling: false,
+			contextIsolation: false,
 			nodeIntegration: true,
-			zoomFactor: 1 / electron.screen.getPrimaryDisplay().scaleFactor
+			spellcheck: false,
+			zoomFactor: 1 / electron.screen.getPrimaryDisplay().scaleFactor		// Unreliable, see https://github.com/electron/electron/issues/10572
 		}
 	});
 
-	let pagepath = path.join(__dirname, "swarm.html");
-
-	win.loadURL(url.format({
-		protocol: "file:",
-		pathname: pagepath,
-		slashes: true
-	}));
-
-	win.once("ready-to-show", () => {		// Thankfully, fires even after exception during renderer startup.
+	win.once("ready-to-show", () => {
+		try {
+			win.webContents.setZoomFactor(1 / electron.screen.getPrimaryDisplay().scaleFactor);	// This seems to work, note issue 10572 above.
+		} catch (err) {
+			win.webContents.zoomFactor = 1 / electron.screen.getPrimaryDisplay().scaleFactor;	// The method above "will be removed" in future.
+		}
 		win.show();
 		win.focus();
 	});
 
+	electron.app.on("window-all-closed", () => {
+		electron.app.quit();
+	});
+
+	electron.ipcMain.on("alert", (event, msg) => {
+		alert(msg);
+	});
+
+	// Actually load the page last, I guess, so the event handlers above are already set up.
+	// Send some possibly useful info as a query.
+
+	let query = {};
+	query.user_data_path = electron.app.getPath("userData");
+
+	win.loadFile(
+		path.join(__dirname, "renderer.html"),
+		{query: query}
+	);
+
 	electron.Menu.setApplicationMenu(menu);
-});
-
-// See Fluorine or Nibbler for examples of loading a file from command line argument.
-// Note that "ready-to-show" probably fires too early to use as a trigger for that.
-
-electron.app.on("window-all-closed", () => {
-	electron.app.quit();
-});
+}
 
 function menu_build() {
 	const template = [
@@ -71,3 +98,4 @@ function menu_build() {
 
 	return electron.Menu.buildFromTemplate(template);
 }
+

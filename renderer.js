@@ -13,7 +13,7 @@ function swarm() {
 
     var PLAYER_MAX_SPEED = 10;
 
-    var canvas = document.getElementById("swarm")
+    var canvas = document.getElementById("main_canvas")
     var virtue = canvas.getContext("2d");
     var sim;
 
