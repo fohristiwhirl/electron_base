@@ -9,10 +9,8 @@ let menu = menu_build();
 let win;						// We're supposed to keep global references to every window we make.
 
 if (electron.app.isReady()) {
-	console.log("Path 1");
 	startup();
 } else {
-	console.log("Path 2");
 	electron.app.once("ready", () => {
 		startup();
 	});
