@@ -23,7 +23,7 @@ function NewSim() {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
 		} else {
-			ctx.clearRect(0, 0, this.width, this.height);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 		}
 		this.i += 1;
 	};
