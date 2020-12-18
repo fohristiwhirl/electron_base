@@ -12,6 +12,7 @@ function NewSim() {
 
 	sim.spin = function() {
 		this.update();
+		this.clearcanvas();
 		this.draw();
 		window.requestAnimationFrame(() => {
 			this.spin();
@@ -19,17 +20,19 @@ function NewSim() {
 	};
 
 	sim.update = function() {
-		if (this.i % 60 === 0) {					// Every 60 frames, update the canvas size...
+		this.i += 1;
+	};
+
+	sim.clearcanvas = function() {
+		if (this.i % 60 === 1) {					// Every 60 frames, update the canvas size...
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
 		} else {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 		}
-		this.i += 1;
 	};
 
 	sim.draw = function() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.font = "30px Arial";
 		ctx.fillStyle = "red";
 		ctx.textBaseline = "top";
